@@ -1,7 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hungyhub/src/config/theme/app_theme.dart';
+import 'package:hungyhub/src/features/other/screens/screens.dart';
 
-void main(){
+void main() {
   runApp(const HungryHub());
 }
 
@@ -15,6 +16,11 @@ class HungryHub extends StatefulWidget {
 class _HungryHubState extends State<HungryHub> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp();
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.light,
+      // onGenerateRoute: AppRoutes.generatedRoute,
+      home: HomeScreen(),
+    );
   }
 }

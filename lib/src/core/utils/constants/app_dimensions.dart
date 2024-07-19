@@ -46,6 +46,7 @@ double getScreenWidth(context, double widthvalue) {
   return ((MediaQuery.of(context).size.width) / AppConstants.defaultWidth) * widthvalue;
 }
 
-class CusDimen {
-  static const EdgeInsetsGeometry defaultPadding = EdgeInsets.only(left: 15, right: 15);
+class CusDimensions {
+  static const double defaultPaddingSize = 20;
+  static const EdgeInsetsGeometry defaultPadding = EdgeInsets.only(left: defaultPaddingSize, right: defaultPaddingSize);
 }
