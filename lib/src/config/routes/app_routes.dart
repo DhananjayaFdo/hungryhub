@@ -7,6 +7,7 @@ class AppRoutes {
   static const String splash = "/";
   static const String home = "home";
   static const String cart = "cart";
+  static const String category = "category";
 
   static Route<dynamic> generatedRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -16,6 +17,8 @@ class AppRoutes {
         return NavStyles.nav1(const HomeScreen());
       case cart:
         return NavStyles.nav1(const CartScreen());
+      case category:
+        return NavStyles.nav1(const CategoryScreen());
       default:
         return NavStyles.nav1(const HomeScreen());
     }
