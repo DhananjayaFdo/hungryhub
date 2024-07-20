@@ -11,7 +11,8 @@ class ProductsScreen extends StatefulWidget {
 class _ProductsScreenState extends State<ProductsScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Body(),
       bottomNavigationBar: CartBtn(),
     );
