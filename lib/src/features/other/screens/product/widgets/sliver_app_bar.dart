@@ -20,17 +20,20 @@ class BackBtn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Container(
-        height: 40,
-        width: 40,
-        decoration: const BoxDecoration(
-          color: AppTheme.white,
-          shape: BoxShape.circle,
-        ),
-        child: const Icon(
-          Icons.arrow_back_ios_new,
-          color: AppTheme.BLUE,
-          size: 25,
+      child: GestureDetector(
+        onTap: () => Navigator.pop(context),
+        child: Container(
+          height: 40,
+          width: 40,
+          decoration: const BoxDecoration(
+            color: AppTheme.white,
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppTheme.BLUE,
+            size: 25,
+          ),
         ),
       ),
     );

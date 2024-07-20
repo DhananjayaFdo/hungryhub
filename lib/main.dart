@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hungyhub/src/config/theme/app_theme.dart';
 
-import 'src/features/other/screens/screens.dart';
+import 'src/config/routes/app_routes.dart';
 
 void main() {
   runApp(const HungryHub());
@@ -20,8 +20,7 @@ class _HungryHubState extends State<HungryHub> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      // onGenerateRoute: AppRoutes.generatedRoute,
-      home: CartScreen(),
+      onGenerateRoute: AppRoutes.generatedRoute,
     );
   }
 }

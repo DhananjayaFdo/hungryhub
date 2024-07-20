@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hungyhub/src/config/theme/app_theme.dart';
 import 'package:hungyhub/src/core/utils/constants/app_dimensions.dart';
 
+import '../../../../../config/routes/app_routes.dart';
+
 class ProductsView extends StatefulWidget {
   const ProductsView({super.key});
 
@@ -41,42 +43,45 @@ class ProductCard extends StatelessWidget {
         right: CusDimensions.defaultPaddingSize,
         bottom: 20,
       ),
-      child: Container(
-        constraints: const BoxConstraints(minHeight: 120),
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: AppTheme.white,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              spreadRadius: 1,
-              blurRadius: 10,
-            ),
-          ],
-        ),
-        child: const Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            ProductImage(),
-
-            //? ------------
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    FavoriteIcon(),
-                    Title2(),
-                    Description(),
-                    PriceWithTypeRow(),
-                  ],
-                ),
+      child: GestureDetector(
+        onTap: () => Navigator.of(context).pushNamed(AppRoutes.product),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 120),
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: AppTheme.white,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                spreadRadius: 1,
+                blurRadius: 10,
               ),
-            )
-          ],
+            ],
+          ),
+          child: const Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              ProductImage(),
+
+              //? ------------
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FavoriteIcon(),
+                      Title2(),
+                      Description(),
+                      PriceWithTypeRow(),
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

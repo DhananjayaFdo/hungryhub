@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hungyhub/src/config/theme/app_theme.dart';
 
+import '../../../../../config/routes/app_routes.dart';
 import '../../../../../core/utils/constants/app_dimensions.dart';
 
 class TopBar extends StatelessWidget {
@@ -37,7 +38,7 @@ class CartIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {},
+      onTap: () => Navigator.of(context).pushNamed(AppRoutes.cart),
       splashColor: Colors.transparent,
       focusColor: Colors.transparent,
       highlightColor: Colors.transparent,
@@ -56,29 +57,32 @@ class SearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Container(
-        height: 50,
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(25),
-          color: AppTheme.ASH,
-        ),
-        child: Row(
-          children: [
-            //? -----------------------
-            const Icon(Icons.search),
+      child: GestureDetector(
+        onTap: () => Navigator.of(context).pushNamed(AppRoutes.search),
+        child: Container(
+          height: 50,
+          padding: const EdgeInsets.symmetric(horizontal: 15),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(25),
+            color: AppTheme.ASH,
+          ),
+          child: Row(
+            children: [
+              //? -----------------------
+              const Icon(Icons.search),
 
-            //? -----------------------
-            spacerHor(10),
+              //? -----------------------
+              spacerHor(10),
 
-            //? -----------------------
-            Text(
-              'Search',
-              style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                    color: Theme.of(context).textTheme.bodySmall!.color!.withOpacity(0.5),
-                  ),
-            ),
-          ],
+              //? -----------------------
+              Text(
+                'Search',
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                      color: Theme.of(context).textTheme.bodySmall!.color!.withOpacity(0.5),
+                    ),
+              ),
+            ],
+          ),
         ),
       ),
     );

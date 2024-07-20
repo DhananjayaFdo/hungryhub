@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:hungyhub/src/config/theme/app_theme.dart';
 import 'package:hungyhub/src/core/utils/constants/app_dimensions.dart';
 
+import '../../../../../config/routes/app_routes.dart';
+
 class CategoriesShower extends StatelessWidget {
   const CategoriesShower({super.key});
 
@@ -29,7 +31,7 @@ class CategoriesShower extends StatelessWidget {
                 ),
                 scrollDirection: Axis.horizontal,
                 itemCount: 5,
-                itemBuilder: (context, index) => CategoryCard(),
+                itemBuilder: (context, index) => const CategoryCard(),
               ),
             ),
           ),
@@ -66,24 +68,27 @@ class CategoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(right: 10),
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        height: 40,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30),
-          color: Theme.of(context).primaryColor,
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.ac_unit, size: 20, color: AppTheme.white),
-            spacerHor(5),
-            Text(
-              'Main Dish',
-              style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                    color: AppTheme.white,
-                  ),
-            ),
-          ],
+      child: GestureDetector(
+        onTap: () => Navigator.of(context).pushNamed(AppRoutes.category),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          height: 40,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(30),
+            color: Theme.of(context).primaryColor,
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.ac_unit, size: 20, color: AppTheme.white),
+              spacerHor(5),
+              Text(
+                'Main Dish',
+                style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                      color: AppTheme.white,
+                    ),
+              ),
+            ],
+          ),
         ),
       ),
     );

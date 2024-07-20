@@ -9,6 +9,7 @@ class AppRoutes {
   static const String cart = "cart";
   static const String category = "category";
   static const String product = "product";
+  static const String search = "search";
 
   static Route<dynamic> generatedRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -22,6 +23,8 @@ class AppRoutes {
         return NavStyles.nav1(const CategoryScreen());
       case product:
         return NavStyles.nav1(const ProductsScreen());
+      case search:
+        return NavStyles.nav1(const SearchScreen());
       default:
         return NavStyles.nav1(const HomeScreen());
     }
