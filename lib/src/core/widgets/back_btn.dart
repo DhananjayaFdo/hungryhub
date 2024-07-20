@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../config/theme/app_theme.dart';
+
 class NavBarBackBtn extends StatelessWidget {
   const NavBarBackBtn({super.key});
 
@@ -11,7 +13,10 @@ class NavBarBackBtn extends StatelessWidget {
         height: 40,
         width: 40,
         child: Center(
-          child: Icon(Icons.arrow_back),
+          child: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: AppTheme.BLUE,
+          ),
         ),
       ),
     );

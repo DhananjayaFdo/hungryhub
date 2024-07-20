@@ -21,7 +21,7 @@ class _HungryHubState extends State<HungryHub> {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       // onGenerateRoute: AppRoutes.generatedRoute,
-      home: CategoryScreen(),
+      home: ProductsScreen(),
     );
   }
 }
