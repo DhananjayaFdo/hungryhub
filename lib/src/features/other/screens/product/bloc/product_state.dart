@@ -5,7 +5,7 @@ sealed class ProductState {}
 
 final class ProductActionState extends ProductState {}
 
-final class CartInitial extends ProductState {}
+class CartInitial extends ProductState {}
 
 final class SelectedUnitTypeState extends ProductState {
   final UnitTypesEntity? unitTypes;

@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:hungyhub/src/features/other/domain/entity/category.dart';
 import 'package:hungyhub/src/features/other/domain/entity/product.dart';
 import 'package:hungyhub/src/features/other/screens/screens.dart';
 
@@ -22,7 +23,8 @@ class AppRoutes {
       case cart:
         return NavStyles.nav1(const CartScreen());
       case category:
-        return NavStyles.nav1(const CategoryScreen());
+        CategoryEntity category = settings.arguments as CategoryEntity;
+        return NavStyles.nav1(CategoryScreen(category: category));
       case product:
         ProductEntity product = settings.arguments as ProductEntity;
         return NavStyles.nav1(ProductsScreen(product: product));

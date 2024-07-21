@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:hungyhub/src/core/network/error/erro.dart';
+import 'package:hungyhub/src/core/utils/params/product.dart';
 import 'package:hungyhub/src/features/other/data/model/product.dart';
 
 import '../../../../../core/network/config.dart';
@@ -12,14 +13,15 @@ class ProductRemoteDataSource {
 
   ProductRemoteDataSource({required this.dio});
 
-  Future<List<ProductModel>> list() async {
+  Future<List<ProductModel>> list(ProductParams params) async {
     String message = "LIST PRODUCT API GET DATA";
 
     try {
       Response response = await dio.get(
         "${NetworkConfig.baseurl}/categories/items",
         queryParameters: {
-          'page': 1,
+          'page': params.page,
+          'category_id': params.categoryId,
         },
         options: Options(
           headers: {

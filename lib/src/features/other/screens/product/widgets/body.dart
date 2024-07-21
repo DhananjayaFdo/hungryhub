@@ -23,7 +23,7 @@ class _BodyState extends State<Body> {
     //? -----
     context.read<ProductBloc>().add(
           CartInitialUnitTypeSetEvent(
-            unitType: widget.product.unitType != null ? widget.product.unitType![0] : null,
+            unitType: widget.product.unitType != null && widget.product.unitType!.isNotEmpty ? widget.product.unitType![0] : null,
           ),
         );
   }

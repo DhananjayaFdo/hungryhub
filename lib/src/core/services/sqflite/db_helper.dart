@@ -2,6 +2,11 @@ import 'package:hungyhub/src/core/widgets/cus_widgets.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
+// class FavTable {
+//   static const table = 'favourite';
+//   static const columnId = 'id';
+// }
+
 class DatabaseHelper {
   static const _databaseName = "myDatabase.db";
   static const _databaseVersion = 1;

@@ -24,7 +24,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
   }
 
   FutureOr<void> categoryCardCLickEvent(CategoryCardCLickEvent event, Emitter<CategoryState> emit) async {
-    emit(HomeCategoryCardClickState());
+    emit(HomeCategoryCardClickState(category: event.category));
   }
 
   FutureOr<void> categoryInitialEvent(CategoryInitialEvent event, Emitter<CategoryState> emit) async {

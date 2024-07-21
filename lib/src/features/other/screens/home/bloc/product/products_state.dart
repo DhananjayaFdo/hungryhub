@@ -5,7 +5,11 @@ sealed class ProductsState {}
 
 final class ProductsActionState extends ProductsState {}
 
-final class ProductsInitial extends ProductsState {}
+final class ProductsInitial extends ProductsState {
+  int page;
+
+  ProductsInitial({required this.page});
+}
 
 //? products section ------
 final class HomeProductsLoadingState extends ProductsState {}
@@ -23,3 +27,11 @@ final class HomeProductsErrorState extends ProductsState {}
 final class HomeProductCardClickState extends ProductsActionState {}
 
 final class HomeProductFavBtnClickState extends ProductsActionState {}
+
+final class HomeMoreProductLoadingState extends ProductsState {}
+
+final class HomeMoreProductLoadedState extends ProductsState {}
+
+final class HomeMoreProductEmptyState extends ProductsState {}
+
+final class HomeMoreProductErrorState extends ProductsState {}

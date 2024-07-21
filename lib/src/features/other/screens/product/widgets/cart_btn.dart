@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hungyhub/src/config/theme/app_theme.dart';
+import 'package:hungyhub/src/core/widgets/cus_widgets.dart';
 import 'package:hungyhub/src/features/other/domain/entity/db/product.dart';
 import 'package:hungyhub/src/features/other/domain/entity/product.dart';
+import 'package:hungyhub/src/features/other/screens/product/bloc/counter/counter_bloc.dart';
 import 'package:hungyhub/src/features/other/screens/product/bloc/product_bloc.dart';
 
 class CartBtn extends StatelessWidget {
@@ -32,18 +34,23 @@ class CartBtn extends StatelessWidget {
                   top: false,
                   child: GestureDetector(
                     onTap: () {
-                      Map<String, dynamic> item = CartItem(
-                        id: product.id,
-                        name: product.name,
-                        price: product.price,
-                        image: product.image,
-                        quantity: 1,
-                        unitType: 'm',
-                      ).toMap();
+                      int count = context.read<CounterBloc>().state.count;
+                      if (count > 0 && count < 10) {
+                        Map<String, dynamic> item = CartItem(
+                          id: product.id,
+                          name: product.name,
+                          price: product.price,
+                          image: product.image,
+                          quantity: count,
+                          unitType: 'm',
+                        ).toMap();
 
-                      context.read<ProductBloc>().add(CartAddToCartBtnClickEvent(
-                            cartItem: item,
-                          ));
+                        context.read<ProductBloc>().add(CartAddToCartBtnClickEvent(
+                              cartItem: item,
+                            ));
+                      } else {
+                        flutterToast('Select item count');
+                      }
                     },
                     child: Container(
                       height: 50,

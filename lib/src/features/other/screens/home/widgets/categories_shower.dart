@@ -30,7 +30,10 @@ class _CategoriesShowerState extends State<CategoriesShower> {
       buildWhen: (previous, current) => current is! CategoryActionState,
       listener: (context, state) {
         if (state is HomeCategoryCardClickState) {
-          Navigator.of(context).pushNamed(AppRoutes.category);
+          Navigator.of(context).pushNamed(
+            AppRoutes.category,
+            arguments: state.category,
+          );
         }
       },
       builder: (context, state) {
@@ -135,7 +138,7 @@ class CategoryCard extends StatelessWidget {
       padding: const EdgeInsets.only(right: 10),
       child: GestureDetector(
         onTap: () {
-          context.read<CategoryBloc>().add(CategoryCardCLickEvent());
+          context.read<CategoryBloc>().add(CategoryCardCLickEvent(category: category));
         },
         // onTap: () => BlocProvider.of<CategoryBloc>(context).add(CategoryCardCLickEvent()),
         child: Container(

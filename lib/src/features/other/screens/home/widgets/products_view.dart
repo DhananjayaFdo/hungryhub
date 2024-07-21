@@ -1,9 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hungyhub/src/config/theme/app_theme.dart';
 import 'package:hungyhub/src/core/utils/constants/app_dimensions.dart';
+import 'package:hungyhub/src/core/utils/params/product.dart';
+import 'package:hungyhub/src/features/other/data/repository/product_data_source_impl.dart';
+import 'package:hungyhub/src/features/other/data/source/remote/product_remote.dart';
 import 'package:hungyhub/src/features/other/domain/entity/product.dart';
+import 'package:hungyhub/src/features/other/domain/usecase/product.dart';
 import 'package:hungyhub/src/features/other/screens/home/bloc/product/products_bloc.dart';
 
 import '../../../../../config/routes/app_routes.dart';
@@ -16,10 +21,26 @@ class ProductsView extends StatefulWidget {
 }
 
 class _ProductsViewState extends State<ProductsView> {
+  final scrollController = ScrollController();
+
+  int currentPage = 1;
+
+  checkScrollPosition() async {
+    scrollController.addListener(() async {
+      double currentPosition = scrollController.offset;
+      double maxPosition = scrollController.position.maxScrollExtent;
+
+      if (currentPosition == maxPosition) {
+        context.read<ProductsBloc>().add(HomeProductLoadingEvent(page: 1, isLoadMore: true));
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    context.read<ProductsBloc>().add(ProductInitialEvent());
+    context.read<ProductsBloc>().add(HomeProductLoadingEvent(page: 1, isLoadMore: false));
+    checkScrollPosition();
   }
 
   @override
@@ -39,20 +60,17 @@ class _ProductsViewState extends State<ProductsView> {
                   //? -------------
                   case HomeProductsLoadingState:
                     return Center(
-                      child: CircularProgressIndicator(
-                        color: Theme.of(context).primaryColor,
-                      ),
+                      child: CircularProgressIndicator(color: Theme.of(context).primaryColor),
                     );
 
                   //? -------------
                   case HomeProductsLoadedState:
                     var product = state as HomeProductsLoadedState;
-                    return Scrollbar(
-                      child: ListView.builder(
-                        padding: const EdgeInsets.only(bottom: 20, top: 15),
-                        itemCount: product.products.length,
-                        itemBuilder: (context, index) => ProductCard(product: product.products[index]),
-                      ),
+                    return ListView.builder(
+                      controller: scrollController,
+                      padding: const EdgeInsets.only(bottom: 20, top: 15),
+                      itemCount: product.products.length,
+                      itemBuilder: (context, index) => ProductCard(product: product.products[index]),
                     );
 
                   //? -------------
@@ -113,12 +131,12 @@ class ProductCard extends StatelessWidget {
               //? ------------
               Expanded(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      FavoriteIcon(),
+                      const FavoriteIcon(),
                       Title2(title: product.name ?? ''),
                       Description(description: product.description ?? ''),
                       PriceWithTypeRow(product: product),

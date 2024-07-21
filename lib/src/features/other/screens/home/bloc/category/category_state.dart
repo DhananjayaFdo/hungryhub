@@ -20,4 +20,8 @@ final class HomeCategoryEmptyState extends CategoryState {}
 
 final class HomeCategoryErrorState extends CategoryState {}
 
-final class HomeCategoryCardClickState extends CategoryActionState {}
+final class HomeCategoryCardClickState extends CategoryActionState {
+  final CategoryEntity category;
+
+  HomeCategoryCardClickState({required this.category});
+}

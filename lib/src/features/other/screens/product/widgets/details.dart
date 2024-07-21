@@ -5,6 +5,7 @@ import 'package:hungyhub/src/config/theme/app_theme.dart';
 import 'package:hungyhub/src/core/utils/constants/app_dimensions.dart';
 import 'package:hungyhub/src/features/other/domain/entity/product.dart';
 import 'package:hungyhub/src/features/other/domain/entity/unit_type.dart';
+import 'package:hungyhub/src/features/other/screens/product/bloc/counter/counter_bloc.dart';
 import 'package:hungyhub/src/features/other/screens/product/bloc/product_bloc.dart';
 
 class ProductDetailsView extends StatefulWidget {
@@ -230,41 +231,39 @@ class Counter extends StatefulWidget {
 }
 
 class _CounterState extends State<Counter> {
-  int count = 0;
-
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        //? --------------
-        CounterBtn(
-          icons: Icons.remove,
-          iconColor: Colors.black,
-          backColor: AppTheme.ASH,
-          onTap: () {
-            setState(() => count - 1);
-          },
-        ),
+    return BlocBuilder<CounterBloc, CounterState>(
+      builder: (context, state) {
+        return Row(
+          children: [
+            //? --------------
+            CounterBtn(
+              icons: Icons.remove,
+              iconColor: Colors.black,
+              backColor: AppTheme.ASH,
+              onTap: () => context.read<CounterBloc>().add(DecreaseItemEvent()),
+            ),
 
-        //? --------------
-        SizedBox(
-          width: 60,
-          child: Center(
-            child: Text("$count"),
-          ),
-        ),
+            //? --------------
+            SizedBox(
+              width: 60,
+              child: Center(
+                child: Text("${state.count}"),
+              ),
+            ),
 
-        //? --------------
-        CounterBtn(
-          icons: Icons.add,
-          iconColor: Colors.white,
-          backColor: Theme.of(context).primaryColor,
-          // onTap: () => setState(() => count >= 10 ? null : count + 1),
-          onTap: () {
-            setState(() => count + 1);
-          },
-        ),
-      ],
+            //? --------------
+            CounterBtn(
+              icons: Icons.add,
+              iconColor: Colors.white,
+              backColor: Theme.of(context).primaryColor,
+              // onTap: () => setState(() => count >= 10 ? null : count + 1),
+              onTap: () => context.read<CounterBloc>().add(IncreaseItemEvent()),
+            ),
+          ],
+        );
+      },
     );
   }
 }
