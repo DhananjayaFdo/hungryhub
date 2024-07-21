@@ -5,9 +5,12 @@ import 'package:hungyhub/src/features/other/domain/entity/db/product.dart';
 import 'package:hungyhub/src/features/other/domain/entity/product.dart';
 import 'package:hungyhub/src/features/other/screens/home/bloc/product/products_bloc.dart';
 import 'package:hungyhub/src/features/other/screens/product/bloc/product_bloc.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../../config/routes/app_routes.dart';
 import '../../../../../core/utils/constants/app_dimensions.dart';
+import '../../product/provider/unit_type.dart';
+import '../provider/search.dart';
 
 class TopBar extends StatelessWidget {
   const TopBar({super.key});
@@ -70,7 +73,8 @@ class SearchBar extends StatelessWidget {
           child: GestureDetector(
             // onTap: () => Navigator.of(context).pushNamed(AppRoutes.search),
             onTap: () {
-              showSearch(context: context, delegate: CustomSearch(items: []));
+              List<ProductEntity> products = Provider.of<SearchProvider>(context, listen: false).product;
+              showSearch(context: context, delegate: CustomSearch(items: products));
 
               // print(state.runtimeType);
               // switch (state.runtimeType) {
@@ -154,11 +158,11 @@ class CustomSearch extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    List<String> matchQuery = [];
+    List<ProductEntity> matchQuery = [];
 
     for (var item in items) {
       if (item.name!.toLowerCase().contains(query.toLowerCase())) {
-        matchQuery.add(item.name!);
+        matchQuery.add(item);
       }
     }
 
@@ -166,7 +170,7 @@ class CustomSearch extends SearchDelegate {
       itemCount: matchQuery.length,
       itemBuilder: (context, index) {
         return ListTile(
-          title: Text(matchQuery[index]),
+          title: Text(matchQuery[index].name ?? ''),
         );
       },
     );
@@ -174,11 +178,11 @@ class CustomSearch extends SearchDelegate {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    List<String> matchQuery = [];
+    List<ProductEntity> matchQuery = [];
 
     for (var item in items) {
       if (item.name!.toLowerCase().contains(query.toLowerCase())) {
-        matchQuery.add(item.name!);
+        matchQuery.add(item);
       }
     }
 
@@ -186,7 +190,11 @@ class CustomSearch extends SearchDelegate {
       itemCount: matchQuery.length,
       itemBuilder: (context, index) {
         return ListTile(
-          title: Text(matchQuery[index]),
+          onTap: () {
+            context.read<UnitTypeProvider>().setListUnitTypes(matchQuery[index].unitType ?? []);
+            Navigator.of(context).pushNamed(AppRoutes.product, arguments: matchQuery[index]);
+          },
+          title: Text(matchQuery[index].name ?? ''),
         );
       },
     );

@@ -10,8 +10,11 @@ import 'package:hungyhub/src/features/other/data/source/remote/product_remote.da
 import 'package:hungyhub/src/features/other/domain/entity/product.dart';
 import 'package:hungyhub/src/features/other/domain/usecase/product.dart';
 import 'package:hungyhub/src/features/other/screens/home/bloc/product/products_bloc.dart';
+import 'package:hungyhub/src/features/other/screens/home/provider/search.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../../config/routes/app_routes.dart';
+import '../../product/provider/unit_type.dart';
 
 class ProductsView extends StatefulWidget {
   const ProductsView({super.key});
@@ -31,7 +34,7 @@ class _ProductsViewState extends State<ProductsView> {
       double maxPosition = scrollController.position.maxScrollExtent;
 
       if (currentPosition == maxPosition) {
-        context.read<ProductsBloc>().add(HomeProductLoadingEvent(page: 1, isLoadMore: true));
+        context.read<ProductsBloc>().add(HomeProductLoadingEvent(page: 1, isLoadMore: true, context: context));
       }
     });
   }
@@ -39,7 +42,7 @@ class _ProductsViewState extends State<ProductsView> {
   @override
   void initState() {
     super.initState();
-    context.read<ProductsBloc>().add(HomeProductLoadingEvent(page: 1, isLoadMore: false));
+    context.read<ProductsBloc>().add(HomeProductLoadingEvent(page: 1, isLoadMore: false, context: context));
     checkScrollPosition();
   }
 
@@ -66,6 +69,7 @@ class _ProductsViewState extends State<ProductsView> {
                   //? -------------
                   case HomeProductsLoadedState:
                     var product = state as HomeProductsLoadedState;
+
                     return ListView.builder(
                       controller: scrollController,
                       padding: const EdgeInsets.only(bottom: 20, top: 15),
@@ -108,7 +112,10 @@ class ProductCard extends StatelessWidget {
         bottom: 20,
       ),
       child: GestureDetector(
-        onTap: () => Navigator.of(context).pushNamed(AppRoutes.product, arguments: product),
+        onTap: () {
+          context.read<UnitTypeProvider>().setListUnitTypes(product.unitType ?? []);
+          Navigator.of(context).pushNamed(AppRoutes.product, arguments: product);
+        },
         child: Container(
           constraints: const BoxConstraints(minHeight: 120),
           padding: const EdgeInsets.all(10),

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hungyhub/src/core/network/error/erro.dart';
 import 'package:hungyhub/src/features/other/data/model/category.dart';
 
@@ -20,7 +21,7 @@ class CategoryRemoteDataSource {
         "${NetworkConfig.baseurl}/categories",
         options: Options(
           headers: {
-            "authorization": "Bearer ${NetworkConfig.token}",
+            "authorization": "Bearer ${dotenv.env['API_KEY'] ?? ''}",
             "accept": 'application/json',
           },
         ),

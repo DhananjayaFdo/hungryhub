@@ -7,6 +7,9 @@ import 'package:hungyhub/src/features/other/domain/entity/product.dart';
 import 'package:hungyhub/src/features/other/domain/entity/unit_type.dart';
 import 'package:hungyhub/src/features/other/screens/product/bloc/counter/counter_bloc.dart';
 import 'package:hungyhub/src/features/other/screens/product/bloc/product_bloc.dart';
+import 'package:hungyhub/src/features/other/screens/product/bloc/variation/variation_bloc.dart';
+import 'package:hungyhub/src/features/other/screens/product/provider/unit_type.dart';
+import 'package:provider/provider.dart';
 
 class ProductDetailsView extends StatefulWidget {
   final ProductEntity product;
@@ -104,69 +107,68 @@ class UnitsShower extends StatefulWidget {
 }
 
 class _UnitsShowerState extends State<UnitsShower> {
-  String selectedUnit = '';
+  List<UnitTypesEntity> types = [];
+
+  @override
+  void initState() {
+    super.initState();
+    getUnitTypes();
+  }
+
+  getUnitTypes() {
+    types = context.read<UnitTypeProvider>().listTypes ?? [];
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<ProductBloc, ProductState>(
-      listener: (context, state) {},
-      builder: (context, state) {
-        switch (state.runtimeType) {
-          //? ----------------------
-          case SelectedUnitTypeState:
-            var success = state as SelectedUnitTypeState;
-            UnitTypesEntity? unite = success.unitTypes;
-
-            if (unite == null) {
-              return const SizedBox();
-            } else {
-              return Padding(
-                padding: const EdgeInsets.only(
-                  top: 25,
-                  bottom: 15,
-                  left: CusDimensions.defaultPaddingSize,
-                  right: CusDimensions.defaultPaddingSize,
-                ),
-                child: Wrap(
-                  children: [
-                    ...widget.product.unitType!
-                        .map(
-                          (e) => Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: GestureDetector(
-                              onTap: () => context.read<ProductBloc>().add(
-                                    CartUnitTypeChangeEvent(unitType: e),
-                                  ),
-                              child: Container(
-                                height: 30,
-                                width: 30,
-                                decoration: BoxDecoration(
-                                  color: selectedUnit == e.value ? Theme.of(context).primaryColor : AppTheme.ASH,
-                                  shape: BoxShape.circle,
-                                ),
-                                alignment: Alignment.center,
-                                child: Text(
-                                  e.value![0].toString().toUpperCase(),
-                                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                                        color: selectedUnit == e.value ? AppTheme.white : Theme.of(context).textTheme.titleMedium!.color,
-                                      ),
-                                ),
-                              ),
-                            ),
+    UnitTypeProvider pro = Provider.of<UnitTypeProvider>(context);
+    switch (types.isNotEmpty) {
+      case true:
+        return Padding(
+          padding: const EdgeInsets.only(
+            top: 25,
+            bottom: 15,
+            left: CusDimensions.defaultPaddingSize,
+            right: CusDimensions.defaultPaddingSize,
+          ),
+          child: Wrap(
+            children: [
+              ...types
+                  .map(
+                    (e) => Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: GestureDetector(
+                        onTap: () {
+                          UnitTypeProvider pro = Provider.of<UnitTypeProvider>(context, listen: false);
+                          pro.changeUnitType(e);
+                        },
+                        child: Container(
+                          height: 30,
+                          width: 30,
+                          decoration: BoxDecoration(
+                            color: pro.selectedType!.value == e.value ? Theme.of(context).primaryColor : AppTheme.ASH,
+                            shape: BoxShape.circle,
                           ),
-                        )
-                        .toList(),
-                  ],
-                ),
-              );
-            }
-
-          //? ----------------------
-          default:
-            return const SizedBox();
-        }
-      },
-    );
+                          alignment: Alignment.center,
+                          child: Text(
+                            e.value![0].toString().toUpperCase(),
+                            style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                                  color: pro.selectedType!.value == e.value ? AppTheme.white : Theme.of(context).textTheme.titleMedium!.color,
+                                ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ],
+          ),
+        );
+      case false:
+        return SizedBox();
+      default:
+        return SizedBox();
+    }
   }
 }
 
@@ -210,9 +212,11 @@ class Price extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    UnitTypeProvider pro = Provider.of<UnitTypeProvider>(context);
+    int price = pro.selectedType == null ? product.price ?? 0 : pro.selectedType!.price ?? 0;
     return Expanded(
       child: Text(
-        "RS ${product.price}.00",
+        "RS ${price}.00",
         style: Theme.of(context).textTheme.titleLarge!.copyWith(
               fontSize: 20,
             ),

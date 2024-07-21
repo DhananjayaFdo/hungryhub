@@ -3,10 +3,13 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hungyhub/src/core/utils/params/product.dart';
 import 'package:hungyhub/src/features/other/data/repository/product_data_source_impl.dart';
 import 'package:hungyhub/src/features/other/data/source/remote/product_remote.dart';
 import 'package:hungyhub/src/features/other/domain/usecase/product.dart';
+import 'package:hungyhub/src/features/other/screens/home/provider/search.dart';
 import 'package:meta/meta.dart';
 
 import '../../../../../../core/network/error/erro.dart';
@@ -85,7 +88,7 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
       List<ProductEntity> productList = [];
       productList.addAll(r.data);
 
-      print(productList.length);
+      event.context.read<SearchProvider>().setProducts(productList);
 
       emit(HomeProductsLoadedState(products: productList));
     });

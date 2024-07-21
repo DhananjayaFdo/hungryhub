@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hungyhub/src/core/network/error/erro.dart';
 import 'package:hungyhub/src/features/other/data/model/product.dart';
 
@@ -21,7 +22,7 @@ class OrderRemoteDataSource {
         data: item,
         options: Options(
           headers: {
-            "authorization": "Bearer ${NetworkConfig.token}",
+            "authorization": "Bearer ${dotenv.env['API_KEY'] ?? ''}",
             "accept": 'application/json',
           },
         ),
