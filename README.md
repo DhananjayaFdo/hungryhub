@@ -1,4 +1,5 @@
-# hungyhub
+```markdown
+# HungryHub
 
 A Flutter application to display products with pagination using BLoC pattern.
 
@@ -8,6 +9,7 @@ A Flutter application to display products with pagination using BLoC pattern.
     - [Prerequisites](#prerequisites)
     - [Clone the Repository](#clone-the-repository)
     - [Install Dependencies](#install-dependencies)
+    - [Configure API Key](#configure-api-key)
     - [Run the App](#run-the-app)
 - [Usage](#usage)
 - [Contributing](#contributing)
@@ -32,20 +34,61 @@ git clone https://github.com/yourusername/product_app.git
 cd product_app
 ```
 
-## Install Dependencies
+### Install Dependencies
 
 Navigate to the project directory and install the necessary dependencies:
 
-```flutter
-    flutter pub get
+```sh
+flutter pub get
 ```
 
-## Run the App
+### Configure API Key
+
+To keep your API key secure, you should not hardcode it in your source code. Instead, you can store
+it in a configuration file. Follow these steps:
+
+1. Create a file named `.env` in the root directory of your project.
+
+2. Add your API key to the `.env` file:
+
+   ```env
+   API_KEY=your_api_key_here
+   ```
+
+3. Use a package like `flutter_dotenv` to load the API key from the `.env` file.
+   Add `flutter_dotenv` to your `pubspec.yaml`:
+
+   ```yaml
+   dependencies:
+     flutter:
+       sdk: flutter
+     flutter_dotenv: ^5.0.2
+   ```
+
+4. Import and load the `.env` file at the beginning of your `main.dart` file:
+
+   ```dart
+   import 'package:flutter/material.dart';
+   import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+   void main() async {
+     await dotenv.load(fileName: ".env");
+     runApp(MyApp());
+   }
+   ```
+
+5. Access the API key in your code using:
+
+   ```dart
+   final String apiKey = dotenv.env['API_KEY'] ?? '';
+   ```
+
+### Run the App
 
 Connect your device or start an emulator, and run the app using the following command:
 
-```flutter
-    flutter run
+```sh
+flutter run
 ```
 
 ## Usage
@@ -57,9 +100,14 @@ allowing you to load more products as you scroll down.
 
 Contributions are welcome! Please fork this repository and create a pull request with your changes.
 
-## Fork the repository
+1. Fork the repository
+2. Create a new branch (`git checkout -b feature/your-feature-name`)
+3. Commit your changes (`git commit -m 'Add some feature'`)
+4. Push to the branch (`git push origin feature/your-feature-name`)
+5. Create a Pull Request
 
-- Create a new branch (git checkout -b feature/your-feature-name)
-- Commit your changes (git commit -m 'Add some feature')
-- Push to the branch (git push origin feature/your-feature-name)
-- Create a Pull Request
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+```
