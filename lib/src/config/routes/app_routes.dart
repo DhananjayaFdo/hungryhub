@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:hungyhub/src/features/other/domain/entity/product.dart';
 import 'package:hungyhub/src/features/other/screens/screens.dart';
 
 import '../../features/splash/screens/screens.dart';
@@ -10,6 +11,7 @@ class AppRoutes {
   static const String category = "category";
   static const String product = "product";
   static const String search = "search";
+  static const String message = "message";
 
   static Route<dynamic> generatedRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -22,7 +24,8 @@ class AppRoutes {
       case category:
         return NavStyles.nav1(const CategoryScreen());
       case product:
-        return NavStyles.nav1(const ProductsScreen());
+        ProductEntity product = settings.arguments as ProductEntity;
+        return NavStyles.nav1(ProductsScreen(product: product));
       case search:
         return NavStyles.nav1(const SearchScreen());
       default:

@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hungyhub/src/features/other/domain/entity/product.dart';
+import 'package:hungyhub/src/features/other/screens/product/bloc/product_bloc.dart';
 import 'package:hungyhub/src/features/other/screens/product/widgets.dart';
 
 class ProductsScreen extends StatefulWidget {
-  const ProductsScreen({super.key});
+  final ProductEntity product;
+
+  const ProductsScreen({super.key, required this.product});
 
   @override
   State<ProductsScreen> createState() => _ProductsScreenState();
@@ -11,10 +16,13 @@ class ProductsScreen extends StatefulWidget {
 class _ProductsScreenState extends State<ProductsScreen> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Body(),
-      bottomNavigationBar: CartBtn(),
+    return BlocProvider(
+      create: (context) => ProductBloc(),
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        body: Body(product: widget.product),
+        bottomNavigationBar: CartBtn(product: widget.product),
+      ),
     );
   }
 }

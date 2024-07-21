@@ -1,10 +1,16 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hungyhub/src/config/theme/app_theme.dart';
 import 'package:hungyhub/src/core/utils/constants/app_dimensions.dart';
+import 'package:hungyhub/src/features/other/domain/entity/product.dart';
+import 'package:hungyhub/src/features/other/domain/entity/unit_type.dart';
+import 'package:hungyhub/src/features/other/screens/product/bloc/product_bloc.dart';
 
 class ProductDetailsView extends StatefulWidget {
-  const ProductDetailsView({super.key});
+  final ProductEntity product;
+
+  const ProductDetailsView({super.key, required this.product});
 
   @override
   State<ProductDetailsView> createState() => _ProductDetailsViewState();
@@ -16,10 +22,10 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
     return SliverList(
       delegate: SliverChildListDelegate(
         [
-          const TitleWithFavorite(),
-          const UnitsShower(),
-          const PriceAndCounterShower(),
-          const Description(),
+          TitleWithFavorite(product: widget.product),
+          UnitsShower(product: widget.product),
+          PriceAndCounterShower(product: widget.product),
+          Description(product: widget.product),
         ],
       ),
     );
@@ -27,12 +33,14 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
 }
 
 class TitleWithFavorite extends StatelessWidget {
-  const TitleWithFavorite({super.key});
+  final ProductEntity product;
+
+  const TitleWithFavorite({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.only(
+    return Padding(
+      padding: const EdgeInsets.only(
         top: 15,
         left: CusDimensions.defaultPaddingSize,
         right: CusDimensions.defaultPaddingSize,
@@ -40,8 +48,8 @@ class TitleWithFavorite extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Title(),
-          FavoriteIcon(),
+          Title(product: product),
+          FavoriteIcon(product: product),
         ],
       ),
     );
@@ -49,19 +57,23 @@ class TitleWithFavorite extends StatelessWidget {
 }
 
 class Title extends StatelessWidget {
-  const Title({super.key});
+  final ProductEntity product;
+
+  const Title({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
     return Text(
-      'Chicken Pizza',
+      product.name ?? '',
       style: Theme.of(context).textTheme.titleMedium!.copyWith(),
     );
   }
 }
 
 class FavoriteIcon extends StatelessWidget {
-  const FavoriteIcon({super.key});
+  final ProductEntity product;
+
+  const FavoriteIcon({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +94,9 @@ class FavoriteIcon extends StatelessWidget {
 }
 
 class UnitsShower extends StatefulWidget {
-  const UnitsShower({super.key});
+  final ProductEntity product;
+
+  const UnitsShower({super.key, required this.product});
 
   @override
   State<UnitsShower> createState() => _UnitsShowerState();
@@ -91,57 +105,79 @@ class UnitsShower extends StatefulWidget {
 class _UnitsShowerState extends State<UnitsShower> {
   String selectedUnit = '';
 
-  List units = ['s', 'm', 'l'];
-
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(
-        top: 25,
-        bottom: 15,
-        left: CusDimensions.defaultPaddingSize,
-        right: CusDimensions.defaultPaddingSize,
-      ),
-      child: Wrap(
-        children: [
-          ...units
-              .map(
-                (e) => Padding(
-                  padding: const EdgeInsets.only(right: 10),
-                  child: GestureDetector(
-                    onTap: () => setState(() => selectedUnit = e),
-                    child: Container(
-                      height: 30,
-                      width: 30,
-                      decoration: BoxDecoration(
-                        color: selectedUnit == e ? Theme.of(context).primaryColor : AppTheme.ASH,
-                        shape: BoxShape.circle,
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        e.toString().toUpperCase(),
-                        style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                              color: selectedUnit == e ? AppTheme.white : Theme.of(context).textTheme.titleMedium!.color,
-                            ),
-                      ),
-                    ),
-                  ),
+    return BlocConsumer<ProductBloc, ProductState>(
+      listener: (context, state) {},
+      builder: (context, state) {
+        switch (state.runtimeType) {
+          //? ----------------------
+          case SelectedUnitTypeState:
+            var success = state as SelectedUnitTypeState;
+            UnitTypesEntity? unite = success.unitTypes;
+
+            if (unite == null) {
+              return const SizedBox();
+            } else {
+              return Padding(
+                padding: const EdgeInsets.only(
+                  top: 25,
+                  bottom: 15,
+                  left: CusDimensions.defaultPaddingSize,
+                  right: CusDimensions.defaultPaddingSize,
                 ),
-              )
-              .toList(),
-        ],
-      ),
+                child: Wrap(
+                  children: [
+                    ...widget.product.unitType!
+                        .map(
+                          (e) => Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: GestureDetector(
+                              onTap: () => context.read<ProductBloc>().add(
+                                    CartUnitTypeChangeEvent(unitType: e),
+                                  ),
+                              child: Container(
+                                height: 30,
+                                width: 30,
+                                decoration: BoxDecoration(
+                                  color: selectedUnit == e.value ? Theme.of(context).primaryColor : AppTheme.ASH,
+                                  shape: BoxShape.circle,
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  e.value![0].toString().toUpperCase(),
+                                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                                        color: selectedUnit == e.value ? AppTheme.white : Theme.of(context).textTheme.titleMedium!.color,
+                                      ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ],
+                ),
+              );
+            }
+
+          //? ----------------------
+          default:
+            return const SizedBox();
+        }
+      },
     );
   }
 }
 
 class PriceAndCounterShower extends StatelessWidget {
-  const PriceAndCounterShower({super.key});
+  final ProductEntity product;
+
+  const PriceAndCounterShower({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.only(
+    return Padding(
+      padding: const EdgeInsets.only(
         top: 10,
         left: CusDimensions.defaultPaddingSize,
         right: CusDimensions.defaultPaddingSize,
@@ -150,13 +186,13 @@ class PriceAndCounterShower extends StatelessWidget {
         children: [
           Row(
             children: [
-              Price(),
-              Counter(),
+              Price(product: product),
+              Counter(product: product),
             ],
           ),
 
           //? -------------
-          Padding(
+          const Padding(
             padding: EdgeInsets.only(top: 15, bottom: 15),
             child: Divider(color: Colors.black26, height: 1),
           ),
@@ -167,13 +203,15 @@ class PriceAndCounterShower extends StatelessWidget {
 }
 
 class Price extends StatelessWidget {
-  const Price({super.key});
+  final ProductEntity product;
+
+  const Price({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Text(
-        "RS 500.00",
+        "RS ${product.price}.00",
         style: Theme.of(context).textTheme.titleLarge!.copyWith(
               fontSize: 20,
             ),
@@ -182,8 +220,17 @@ class Price extends StatelessWidget {
   }
 }
 
-class Counter extends StatelessWidget {
-  const Counter({super.key});
+class Counter extends StatefulWidget {
+  final ProductEntity product;
+
+  const Counter({super.key, required this.product});
+
+  @override
+  State<Counter> createState() => _CounterState();
+}
+
+class _CounterState extends State<Counter> {
+  int count = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -194,14 +241,16 @@ class Counter extends StatelessWidget {
           icons: Icons.remove,
           iconColor: Colors.black,
           backColor: AppTheme.ASH,
-          onTap: () {},
+          onTap: () {
+            setState(() => count - 1);
+          },
         ),
 
         //? --------------
-        const SizedBox(
+        SizedBox(
           width: 60,
           child: Center(
-            child: Text('10'),
+            child: Text("$count"),
           ),
         ),
 
@@ -210,7 +259,10 @@ class Counter extends StatelessWidget {
           icons: Icons.add,
           iconColor: Colors.white,
           backColor: Theme.of(context).primaryColor,
-          onTap: () {},
+          // onTap: () => setState(() => count >= 10 ? null : count + 1),
+          onTap: () {
+            setState(() => count + 1);
+          },
         ),
       ],
     );
@@ -222,6 +274,7 @@ class CounterBtn extends StatelessWidget {
   final Color iconColor;
   final Color backColor;
   final void Function()? onTap;
+
   const CounterBtn({
     super.key,
     required this.icons,
@@ -232,7 +285,7 @@ class CounterBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
       child: Container(
         height: 30,
@@ -252,7 +305,9 @@ class CounterBtn extends StatelessWidget {
 }
 
 class Description extends StatefulWidget {
-  const Description({super.key});
+  final ProductEntity product;
+
+  const Description({super.key, required this.product});
 
   @override
   State<Description> createState() => _DescriptionState();
@@ -297,8 +352,7 @@ class _DescriptionState extends State<Description> {
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(),
               children: [
                 TextSpan(
-                  text: setLength(
-                      "Labore exercitation adipisicing occaecat velit officia commodo occaecat laboris qui cupidatat veniam fugiat. Veniam laborum cillum anim ullamco qui non aliqua ad veniam velit adipisicing nostrud. Nostrud laborum do est dolore aliquip consequat id. Et ut do minim minim aliqua tempor amet est. Proident excepteur pariatur deserunt cillum velit aliqua incididunt voluptate laborum."),
+                  text: setLength(widget.product.description ?? ''),
                 ),
 
                 //? ------

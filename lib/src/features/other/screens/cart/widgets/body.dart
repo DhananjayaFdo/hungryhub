@@ -1,6 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hungyhub/src/config/theme/app_theme.dart';
 import 'package:hungyhub/src/core/utils/constants/app_dimensions.dart';
+import 'package:hungyhub/src/features/other/domain/entity/db/product.dart';
+import 'package:hungyhub/src/features/other/screens/cart/bloc/cart/cart_bloc.dart';
 
 class Body extends StatefulWidget {
   const Body({super.key});
@@ -11,25 +15,67 @@ class Body extends StatefulWidget {
 
 class _BodyState extends State<Body> {
   @override
+  void initState() {
+    super.initState();
+    context.read<CartBloc>().add(CartInitialEvent());
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 10),
-        child: Container(
-          color: AppTheme.white,
-          child: ListView.builder(
-            padding: const EdgeInsets.only(bottom: 20, top: 10),
-            itemCount: 3,
-            itemBuilder: (context, index) => const ProductCard(),
-          ),
-        ),
-      ),
+    return BlocConsumer<CartBloc, CartState>(
+      listener: (context, state) {},
+      builder: (context, state) {
+        return Expanded(
+            child: (() {
+          switch (state.runtimeType) {
+            case CartLoadingState:
+              return Center(
+                child: CircularProgressIndicator(
+                  color: Theme.of(context).primaryColor,
+                ),
+              );
+
+            case CartLoadedState:
+              var success = state as CartLoadedState;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Container(
+                  color: AppTheme.white,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.only(bottom: 20, top: 10),
+                    itemCount: success.items.length,
+                    itemBuilder: (context, index) => ProductCard(item: success.items[index]),
+                  ),
+                ),
+              );
+
+            case CartEmptyState:
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10, top: 10),
+                child: Container(
+                  color: AppTheme.white,
+                  child: const Center(
+                    child: Text('Cart is Empty'),
+                  ),
+                ),
+              );
+
+            case CartErrorState:
+              return const SizedBox();
+
+            default:
+              return const SizedBox();
+          }
+        }()));
+      },
     );
   }
 }
 
 class ProductCard extends StatelessWidget {
-  const ProductCard({super.key});
+  final CartItem item;
+
+  const ProductCard({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {
@@ -52,25 +98,25 @@ class ProductCard extends StatelessWidget {
           ],
           borderRadius: BorderRadius.circular(10),
         ),
-        child: const Row(
+        child: Row(
           children: [
             //? ----------------
-            ImageCon(),
+            ImageCon(item: item),
 
             //? ----------------
             Expanded(
               child: Padding(
-                padding: EdgeInsets.all(5.0),
+                padding: const EdgeInsets.all(5.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    RemoveBtn(),
-                    Title(),
+                    RemoveBtn(item: item),
+                    Title(item: item),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Counter(),
-                        Price(),
+                        Counter(item: item),
+                        Price(item: item),
                       ],
                     )
                   ],
@@ -85,49 +131,76 @@ class ProductCard extends StatelessWidget {
 }
 
 class ImageCon extends StatelessWidget {
-  const ImageCon({super.key});
+  final CartItem item;
+
+  const ImageCon({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: widthUsingMQ(context, 0.25),
-      width: widthUsingMQ(context, 0.25),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: Theme.of(context).primaryColor.withOpacity(0.2),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        height: widthUsingMQ(context, 0.25),
+        width: widthUsingMQ(context, 0.25),
+        decoration: BoxDecoration(
+          color: Theme.of(context).primaryColor.withOpacity(0.2),
+        ),
+        child: CachedNetworkImage(
+          imageUrl: item.image ?? '',
+          imageBuilder: (context, imageProvider) => Image(
+            image: imageProvider,
+            fit: BoxFit.cover,
+          ),
+          errorWidget: (context, url, error) => const Icon(Icons.fastfood_outlined, color: AppTheme.white),
+        ),
       ),
     );
   }
 }
 
 class RemoveBtn extends StatelessWidget {
-  const RemoveBtn({super.key});
+  final CartItem item;
+
+  const RemoveBtn({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {
-    return const Align(
+    return Align(
       alignment: Alignment.centerRight,
-      child: Icon(
-        Icons.close_outlined,
+      child: GestureDetector(
+        onTap: () {
+          if (item.id != null) {
+            context.read<CartBloc>().add(
+                  CartItemRemoveClickEvent(id: item.id!),
+                );
+          }
+        },
+        child: const Icon(
+          Icons.close_outlined,
+        ),
       ),
     );
   }
 }
 
 class Title extends StatelessWidget {
-  const Title({super.key});
+  final CartItem item;
+
+  const Title({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
+    return Padding(
       padding: EdgeInsets.only(top: 5, bottom: 5),
-      child: Text('Vanilla Ice Cream'),
+      child: Text(item.name ?? ''),
     );
   }
 }
 
 class Price extends StatelessWidget {
-  const Price({super.key});
+  final CartItem item;
+
+  const Price({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +208,7 @@ class Price extends StatelessWidget {
       child: Align(
         alignment: Alignment.centerRight,
         child: Text(
-          "RS 500.00",
+          "RS ${item.price ?? ''}.00",
           style: Theme.of(context).textTheme.titleSmall!.copyWith(),
         ),
       ),
@@ -144,7 +217,9 @@ class Price extends StatelessWidget {
 }
 
 class Counter extends StatelessWidget {
-  const Counter({super.key});
+  final CartItem item;
+
+  const Counter({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {
@@ -152,17 +227,25 @@ class Counter extends StatelessWidget {
       children: [
         //? --------------
         CounterBtn(
-          icons: Icons.remove,
-          iconColor: Colors.black,
-          backColor: AppTheme.ASH,
-          onTap: () {},
-        ),
+            icons: Icons.remove,
+            iconColor: Colors.black,
+            backColor: AppTheme.ASH,
+            onTap: () {
+              if (item.id != null) {
+                context.read<CartBloc>().add(
+                      CartItemIncreaseDecreaseEvent(
+                        isIncrease: false,
+                        id: item.id!,
+                      ),
+                    );
+              }
+            }),
 
         //? --------------
-        const SizedBox(
+        SizedBox(
           width: 40,
           child: Center(
-            child: Text('10'),
+            child: Text('${item.quantity}'),
           ),
         ),
 
@@ -171,7 +254,16 @@ class Counter extends StatelessWidget {
           icons: Icons.add,
           iconColor: Colors.white,
           backColor: Theme.of(context).primaryColor,
-          onTap: () {},
+          onTap: () {
+            if (item.id != null) {
+              context.read<CartBloc>().add(
+                    CartItemIncreaseDecreaseEvent(
+                      isIncrease: true,
+                      id: item.id!,
+                    ),
+                  );
+            }
+          },
         ),
       ],
     );
@@ -183,6 +275,7 @@ class CounterBtn extends StatelessWidget {
   final Color iconColor;
   final Color backColor;
   final void Function()? onTap;
+
   const CounterBtn({
     super.key,
     required this.icons,

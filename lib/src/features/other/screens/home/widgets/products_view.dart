@@ -1,6 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hungyhub/src/config/theme/app_theme.dart';
 import 'package:hungyhub/src/core/utils/constants/app_dimensions.dart';
+import 'package:hungyhub/src/features/other/domain/entity/product.dart';
+import 'package:hungyhub/src/features/other/screens/home/bloc/product/products_bloc.dart';
 
 import '../../../../../config/routes/app_routes.dart';
 
@@ -13,27 +17,69 @@ class ProductsView extends StatefulWidget {
 
 class _ProductsViewState extends State<ProductsView> {
   @override
+  void initState() {
+    super.initState();
+    context.read<ProductsBloc>().add(ProductInitialEvent());
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.only(top: 10),
-        child: Container(
-          color: AppTheme.white,
-          child: Scrollbar(
-            child: ListView.builder(
-              padding: const EdgeInsets.only(bottom: 20, top: 15),
-              itemCount: 10,
-              itemBuilder: (context, index) => const ProductCard(),
+    return BlocConsumer<ProductsBloc, ProductsState>(
+      listenWhen: (previous, current) => current is ProductsActionState,
+      buildWhen: (previous, current) => current is! ProductsActionState,
+      listener: (context, state) {},
+      builder: (context, state) {
+        return Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Container(
+              color: AppTheme.white,
+              child: (() {
+                switch (state.runtimeType) {
+                  //? -------------
+                  case HomeProductsLoadingState:
+                    return Center(
+                      child: CircularProgressIndicator(
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    );
+
+                  //? -------------
+                  case HomeProductsLoadedState:
+                    var product = state as HomeProductsLoadedState;
+                    return Scrollbar(
+                      child: ListView.builder(
+                        padding: const EdgeInsets.only(bottom: 20, top: 15),
+                        itemCount: product.products.length,
+                        itemBuilder: (context, index) => ProductCard(product: product.products[index]),
+                      ),
+                    );
+
+                  //? -------------
+                  case HomeProductsEmptyState:
+                    return const SizedBox();
+
+                  //? -------------
+                  case HomeProductsErrorState:
+                    return const SizedBox();
+
+                  //? -------------
+                  default:
+                    return const SizedBox();
+                }
+              }()),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
 
 class ProductCard extends StatelessWidget {
-  const ProductCard({super.key});
+  final ProductEntity product;
+
+  const ProductCard({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +90,7 @@ class ProductCard extends StatelessWidget {
         bottom: 20,
       ),
       child: GestureDetector(
-        onTap: () => Navigator.of(context).pushNamed(AppRoutes.product),
+        onTap: () => Navigator.of(context).pushNamed(AppRoutes.product, arguments: product),
         child: Container(
           constraints: const BoxConstraints(minHeight: 120),
           padding: const EdgeInsets.all(10),
@@ -59,10 +105,10 @@ class ProductCard extends StatelessWidget {
               ),
             ],
           ),
-          child: const Row(
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              ProductImage(),
+              ProductImage(avatar: product.image ?? ''),
 
               //? ------------
               Expanded(
@@ -73,9 +119,9 @@ class ProductCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       FavoriteIcon(),
-                      Title2(),
-                      Description(),
-                      PriceWithTypeRow(),
+                      Title2(title: product.name ?? ''),
+                      Description(description: product.description ?? ''),
+                      PriceWithTypeRow(product: product),
                     ],
                   ),
                 ),
@@ -89,7 +135,9 @@ class ProductCard extends StatelessWidget {
 }
 
 class ProductImage extends StatelessWidget {
-  const ProductImage({super.key});
+  final String avatar;
+
+  const ProductImage({super.key, required this.avatar});
 
   @override
   Widget build(BuildContext context) {
@@ -100,6 +148,14 @@ class ProductImage extends StatelessWidget {
         width: widthUsingMQ(context, 0.25),
         decoration: BoxDecoration(
           color: Theme.of(context).primaryColor.withOpacity(0.2),
+        ),
+        child: CachedNetworkImage(
+          imageUrl: avatar,
+          imageBuilder: (context, imageProvider) => Image(
+            image: imageProvider,
+            fit: BoxFit.cover,
+          ),
+          errorWidget: (context, url, error) => const Icon(Icons.fastfood_outlined, color: AppTheme.white),
         ),
       ),
     );
@@ -128,14 +184,16 @@ class _FavoriteIconState extends State<FavoriteIcon> {
 }
 
 class Title2 extends StatelessWidget {
-  const Title2({super.key});
+  final String title;
+
+  const Title2({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 5),
       child: Text(
-        'Chicken Club Sandwich',
+        title,
         style: Theme.of(context).textTheme.titleMedium!.copyWith(),
       ),
     );
@@ -143,14 +201,16 @@ class Title2 extends StatelessWidget {
 }
 
 class Description extends StatelessWidget {
-  const Description({super.key});
+  final String description;
+
+  const Description({super.key, required this.description});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 5),
       child: Text(
-        'Duis proident labore aliquip eiusmod proident exercitation nulla esseasjdkjaskdj aksjd klasjd kal sdj sa',
+        description,
         maxLines: 2,
         style: Theme.of(context).textTheme.bodySmall!.copyWith(
               overflow: TextOverflow.ellipsis,
@@ -162,17 +222,19 @@ class Description extends StatelessWidget {
 }
 
 class PriceWithTypeRow extends StatelessWidget {
-  const PriceWithTypeRow({super.key});
+  final ProductEntity product;
+
+  const PriceWithTypeRow({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.only(top: 5),
+    return Padding(
+      padding: const EdgeInsets.only(top: 5),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Type(),
-          Price(),
+          Type(product: product),
+          Price(product: product),
         ],
       ),
     );
@@ -180,24 +242,28 @@ class PriceWithTypeRow extends StatelessWidget {
 }
 
 class Price extends StatelessWidget {
-  const Price({super.key});
+  final ProductEntity product;
+
+  const Price({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
     return Text(
-      "Rs 600.00",
+      "Rs ${product.price}.00",
       style: Theme.of(context).textTheme.titleSmall,
     );
   }
 }
 
 class Type extends StatelessWidget {
-  const Type({super.key});
+  final ProductEntity product;
+
+  const Type({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
     return Text(
-      'Main Dish',
+      product.categoryName ?? '',
       style: Theme.of(context).textTheme.titleSmall,
     );
   }

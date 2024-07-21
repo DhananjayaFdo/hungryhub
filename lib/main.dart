@@ -2,8 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:hungyhub/src/config/theme/app_theme.dart';
 
 import 'src/config/routes/app_routes.dart';
+import 'src/core/services/sqflite/db_helper.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  //? initialize database ----
+  final dbHelper = DatabaseHelper.instance;
+  await dbHelper.database;
+
   runApp(const HungryHub());
 }
 
