@@ -9,6 +9,7 @@ import 'package:hungyhub/src/core/utils/params/product.dart';
 import 'package:hungyhub/src/features/other/data/repository/product_data_source_impl.dart';
 import 'package:hungyhub/src/features/other/data/source/remote/product_remote.dart';
 import 'package:hungyhub/src/features/other/domain/usecase/product.dart';
+import 'package:hungyhub/src/features/other/screens/home/bloc/provider/products.dart';
 import 'package:hungyhub/src/features/other/screens/home/provider/search.dart';
 import 'package:meta/meta.dart';
 
@@ -24,7 +25,7 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
   ProductsBloc() : super(ProductsInitial(page: 1)) {
     on<ProductInitialEvent>(productInitialEvent);
     on<HomeProductLoadingEvent>(homeProductLoadingEvent);
-    on<ProductLoadMoreProductEvent>(productLoadMoreProductEvent);
+    // on<ProductLoadMoreProductEvent>(productLoadMoreProductEvent);
   }
 
   FutureOr<void> productInitialEvent(ProductInitialEvent event, Emitter<ProductsState> emit) async {
@@ -47,28 +48,6 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
     });
   }
 
-  FutureOr<void> productLoadMoreProductEvent(ProductLoadMoreProductEvent event, Emitter<ProductsState> emit) async {
-    emit(HomeMoreProductLoadingState());
-
-    int page = 1;
-
-    Either<ErrorResponse, SuccessResponse<List<ProductEntity>>> products = await ProductsUseCase(
-      repository: ProductDataSourceImpl(
-        source: ProductRemoteDataSource(
-          dio: Dio(),
-        ),
-      ),
-    ).list(
-      ProductParams(page: page += 1),
-    );
-
-    products.fold((l) {
-      emit(HomeMoreProductErrorState());
-    }, (r) {
-      emit(HomeMoreProductLoadedState());
-    });
-  }
-
   FutureOr<void> homeProductLoadingEvent(HomeProductLoadingEvent event, Emitter<ProductsState> emit) async {
     if (!event.isLoadMore) emit(HomeMoreProductLoadingState());
 
@@ -79,7 +58,7 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
         ),
       ),
     ).list(
-      ProductParams(page: event.page),
+      ProductParams(page: 1),
     );
 
     products.fold((l) {
@@ -89,6 +68,7 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
       productList.addAll(r.data);
 
       event.context.read<SearchProvider>().setProducts(productList);
+      event.context.read<ProductProvider>().setPageAndProducts(1, r.data);
 
       emit(HomeProductsLoadedState(products: productList));
     });

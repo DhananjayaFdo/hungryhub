@@ -35,10 +35,14 @@ class ProductRemoteDataSource {
       var body = json.decode(response.data);
 
       if (body['Status']) {
-        List data = body['Result'];
+        List? data = body['Result'];
 
-        List<ProductModel> products = data.map((e) => ProductModel.fromJson(e)).toList();
-        return products;
+        if (data == null) {
+          return [];
+        } else {
+          List<ProductModel> products = data.map((e) => ProductModel.fromJson(e)).toList();
+          return products;
+        }
       } else {
         ErrorResponse exception = ErrorResponse(
           code: response.statusCode,

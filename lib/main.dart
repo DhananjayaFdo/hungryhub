@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hungyhub/src/config/theme/app_theme.dart';
+import 'package:hungyhub/src/features/other/screens/category/bloc/provider/category.dart';
+import 'package:hungyhub/src/features/other/screens/home/bloc/provider/products.dart';
 import 'package:hungyhub/src/features/other/screens/home/provider/search.dart';
 import 'package:hungyhub/src/features/other/screens/product/provider/unit_type.dart';
 import 'package:provider/provider.dart';
@@ -34,6 +36,8 @@ class _HungryHubState extends State<HungryHub> {
       providers: [
         ChangeNotifierProvider(create: (context) => SearchProvider()),
         ChangeNotifierProvider(create: (context) => UnitTypeProvider()),
+        ChangeNotifierProvider(create: (context) => ProductProvider()),
+        ChangeNotifierProvider(create: (context) => ProductByCategoryProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

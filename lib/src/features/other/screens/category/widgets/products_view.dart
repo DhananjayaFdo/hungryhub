@@ -4,10 +4,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hungyhub/src/config/theme/app_theme.dart';
 import 'package:hungyhub/src/core/utils/constants/app_dimensions.dart';
 import 'package:hungyhub/src/features/other/domain/entity/category.dart';
+import 'package:hungyhub/src/features/other/screens/category/bloc/provider/category.dart';
 import 'package:hungyhub/src/features/other/screens/category/category/category_bloc.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../../config/routes/app_routes.dart';
 import '../../../domain/entity/product.dart';
+import '../bloc/load_product/load_product_bloc.dart';
 
 class ProductsView extends StatefulWidget {
   final CategoryEntity category;
@@ -19,10 +22,32 @@ class ProductsView extends StatefulWidget {
 }
 
 class _ProductsViewState extends State<ProductsView> {
+  final scrollController = ScrollController();
+
+  checkScrollPosition() async {
+    scrollController.addListener(() async {
+      double currentPosition = scrollController.offset;
+      double maxPosition = scrollController.position.maxScrollExtent;
+
+      if (currentPosition == maxPosition) {
+        int page = Provider.of<ProductByCategoryProvider>(context, listen: false).page;
+        print(page);
+        context.read<LoadProductBloc>().add(
+              MoreProductLoadEvent(
+                page: page + 1,
+                context: context,
+                categoryId: widget.category.id ?? '0',
+              ),
+            );
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    context.read<CategoryBloc>().add(CategoryInitialEvent(category: widget.category));
+    context.read<CategoryBloc>().add(CategoryInitialEvent(category: widget.category, context: context));
+    checkScrollPosition();
   }
 
   @override
@@ -45,13 +70,51 @@ class _ProductsViewState extends State<ProductsView> {
                     );
 
                   case ProductByCategoryLoadedState:
-                    var data = state as ProductByCategoryLoadedState;
-                    return Scrollbar(
-                      child: ListView.builder(
-                        padding: const EdgeInsets.only(bottom: 20, top: 15),
-                        itemCount: data.product.length,
-                        itemBuilder: (context, index) => ProductCard(product: data.product[index]),
-                      ),
+                    // var data = state as ProductByCategoryLoadedState;
+
+                    ProductByCategoryProvider pro = Provider.of<ProductByCategoryProvider>(context);
+                    List<ProductEntity> products = pro.products;
+                    return ListView.builder(
+                      controller: scrollController,
+                      padding: const EdgeInsets.only(bottom: 20, top: 15),
+                      itemCount: products.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == products.length) {
+                          return BlocConsumer<LoadProductBloc, LoadProductState>(
+                            listener: (context, state) {},
+                            builder: (context, state) {
+                              switch (state.runtimeType) {
+                                case LoadProductLoadingState:
+                                  return Container(
+                                    height: 30,
+                                    width: double.infinity,
+                                    alignment: Alignment.center,
+                                    child: const Text('Loading......'),
+                                  );
+
+                                case LoadProductLoadedState:
+                                  return const SizedBox();
+
+                                case LoadProductErrorState:
+                                  return const SizedBox();
+
+                                case LoadProductEmptyState:
+                                  return Container(
+                                    height: 30,
+                                    width: double.infinity,
+                                    alignment: Alignment.center,
+                                    child: const Text('No More Product Available'),
+                                  );
+
+                                default:
+                                  return const SizedBox();
+                              }
+                            },
+                          );
+                        }
+
+                        return ProductCard(product: products[index]);
+                      },
                     );
 
                   case ProductByCategoryEmptyState:

@@ -9,12 +9,14 @@ import 'package:hungyhub/src/features/other/data/repository/product_data_source_
 import 'package:hungyhub/src/features/other/data/source/remote/product_remote.dart';
 import 'package:hungyhub/src/features/other/domain/entity/product.dart';
 import 'package:hungyhub/src/features/other/domain/usecase/product.dart';
+import 'package:hungyhub/src/features/other/screens/home/bloc/load_product/load_product_bloc.dart';
 import 'package:hungyhub/src/features/other/screens/home/bloc/product/products_bloc.dart';
 import 'package:hungyhub/src/features/other/screens/home/provider/search.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../config/routes/app_routes.dart';
 import '../../product/provider/unit_type.dart';
+import '../bloc/provider/products.dart';
 
 class ProductsView extends StatefulWidget {
   const ProductsView({super.key});
@@ -26,15 +28,15 @@ class ProductsView extends StatefulWidget {
 class _ProductsViewState extends State<ProductsView> {
   final scrollController = ScrollController();
 
-  int currentPage = 1;
-
   checkScrollPosition() async {
     scrollController.addListener(() async {
       double currentPosition = scrollController.offset;
       double maxPosition = scrollController.position.maxScrollExtent;
 
       if (currentPosition == maxPosition) {
-        context.read<ProductsBloc>().add(HomeProductLoadingEvent(page: 1, isLoadMore: true, context: context));
+        int page = Provider.of<ProductProvider>(context, listen: false).page;
+        print(page);
+        context.read<LoadProductBloc>().add(MoreProductLoadState(page: page + 1, context: context));
       }
     });
   }
@@ -68,14 +70,52 @@ class _ProductsViewState extends State<ProductsView> {
 
                   //? -------------
                   case HomeProductsLoadedState:
-                    var product = state as HomeProductsLoadedState;
+                    // var product = state as HomeProductsLoadedState;
+                    ProductProvider pro = Provider.of<ProductProvider>(context);
+                    List<ProductEntity> products = pro.products;
 
                     return ListView.builder(
-                      controller: scrollController,
-                      padding: const EdgeInsets.only(bottom: 20, top: 15),
-                      itemCount: product.products.length,
-                      itemBuilder: (context, index) => ProductCard(product: product.products[index]),
-                    );
+                        controller: scrollController,
+                        padding: const EdgeInsets.only(bottom: 20, top: 15),
+                        itemCount: products.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == products.length) {
+                            return BlocConsumer<LoadProductBloc, LoadProductState>(
+                              listener: (context, state) {},
+                              builder: (context, state) {
+                                switch (state.runtimeType) {
+                                  case LoadProductLoadingState:
+                                    return Container(
+                                      height: 30,
+                                      width: double.infinity,
+                                      alignment: Alignment.center,
+                                      child: const Text('Loading......'),
+                                    );
+
+                                  case LoadProductLoadedState:
+                                    return const SizedBox();
+
+                                  case LoadProductErrorState:
+                                    return const SizedBox();
+
+                                  case LoadProductEmptyState:
+                                    return Container(
+                                      height: 30,
+                                      width: double.infinity,
+                                      alignment: Alignment.center,
+                                      child: const Text('No More Product Available'),
+                                    );
+
+                                  default:
+                                    return const SizedBox();
+                                }
+                              },
+                            );
+                          }
+                          return ProductCard(
+                            product: products[index],
+                          );
+                        });
 
                   //? -------------
                   case HomeProductsEmptyState:
@@ -123,11 +163,7 @@ class ProductCard extends StatelessWidget {
             color: AppTheme.white,
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                spreadRadius: 1,
-                blurRadius: 10,
-              ),
+              BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 1, blurRadius: 10),
             ],
           ),
           child: Row(

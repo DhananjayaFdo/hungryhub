@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hungyhub/src/features/other/screens/home/bloc/category/category_bloc.dart';
+import 'package:hungyhub/src/features/other/screens/home/bloc/load_product/load_product_bloc.dart';
 import 'package:hungyhub/src/features/other/screens/home/bloc/product/products_bloc.dart';
 
 import 'widgets.dart';
@@ -24,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
       providers: [
         BlocProvider(create: (context) => CategoryBloc()),
         BlocProvider(create: (context) => ProductsBloc()),
+        BlocProvider(create: (context) => LoadProductBloc()),
       ],
       child: const Scaffold(
         body: Column(

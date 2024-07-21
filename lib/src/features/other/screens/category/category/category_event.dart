@@ -5,6 +5,7 @@ sealed class CategoryEvent {}
 
 final class CategoryInitialEvent extends CategoryEvent {
   final CategoryEntity category;
+  final BuildContext context;
 
-  CategoryInitialEvent({required this.category});
+  CategoryInitialEvent({required this.category, required this.context});
 }
